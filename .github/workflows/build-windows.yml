@@ -1,6 +1,4 @@
 name: Build For Windows 10+
-# 调试不好，放弃
-# 辣鸡Windows
 
 on:
   workflow_dispatch:
@@ -41,11 +39,14 @@ jobs:
       run: |
         ls ../Qt
         ls ../Qt/tools
-        cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" -B ${{github.workspace}}/build
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -G "MinGW Makefiles" -B ${{github.workspace}}/build
 
     - name: Build project
       working-directory: ${{github.workspace}}/build
-      run: mingw32-make.exe
+      run: |
+        mingw32-make.exe VERBOSE=1 2> errors.txt || true
+        echo ::set-output name=errors::`cat errors.txt`
+        mingw32-make.exe VERBOSE=1 2> errors.txt
 
     - name: Compress portable program
       working-directory: ${{github.workspace}}
